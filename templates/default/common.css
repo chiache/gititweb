@@ -1,0 +1,120 @@
+body {
+	margin: 0;
+	color: #e0e0e0;
+	background-color: #303030;
+	text-align: center;
+}
+
+.outer {
+	display: block;
+	margin: 120px auto 45px auto;
+	text-align: left;
+	padding: 0;
+	width: 960px;
+}
+
+.inner {
+	display: block;
+	margin: 0 auto 15px auto;
+	float: center;
+	padding: 0;
+	width: 940px;
+}
+
+#title {
+	font-size: 60px;
+}
+
+#title a {
+	color: #e0e0e0;
+	text-decoration: none;
+}
+
+#menu {
+	height: 45px;
+	background-color: #000000;
+}
+
+#menu a {
+	color: #e0e0e0;
+	text-decoration: none;
+}
+
+#menu .menu-item {
+	display: block;
+	float: right;
+	text-align: center;
+	padding: 3px;
+	margin: 0;
+	margin-left: 5px;
+	width: 120px;
+	height: 45px;
+	font-size: 39px;
+}
+
+.left-block {
+	display: block;
+	margin-left: 10px;
+	margin-right: 0;
+	margin-top: 5px;
+	float: left;
+	text-align: left;
+	padding: 0;
+	width: 230px;
+}
+
+.right-block {
+	display: block;
+	margin-left: 0;
+	margin-right: 10px;
+	margin-top: 5px;
+	float: right;
+	text-align: left;
+	padding: 0;
+	width: 700px;
+}
+
+#sidebar a {
+	color: #e0e0e0;
+	text-decoration: none;
+}
+
+#sidebar ul li {
+	list-style-type: none;
+	font-size: 34px;
+	margin-left: -34px;
+	padding-left: 0;
+}
+
+#sidebar ul li ul li {
+	list-style-type: square;
+	font-size: 28px;
+	margin-left: 0;
+	padding-left: 5px;
+}
+
+.content-list {
+	margin-bottom: 30px;
+}
+
+.content-list h1 {
+	font-size: 40px;
+}
+
+.content-list ul li {
+	list-style-type: square;
+	font-size: 32px;
+}
+
+.content-list ul li a {
+	color: #e0e0e0;
+	text-decoration: none;
+}
+
+.content-list ul li a:visited {
+	color: #808080;
+}
+
+.pages.image img {
+	max-width: 680px;
+}
