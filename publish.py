@@ -1,34 +1,53 @@
 #!/usr/bin/env python
 
-import os, sys, subprocess
+import os, sys, subprocess, re
 
 do_preview = False
-if str(subprocess.check_output('git remote', shell=True)).rstrip('\n'):
+p = subprocess.Popen('git remote', stdout=subprocess.PIPE, shell=True)
+(out, err) = p.communicate();
+if p.returncode:
+    raise Exception("Not a git directory")
+if out.rstrip('\n'):
     do_preview = True
     print "Publish in preview mode"
  
 # find php-cgi
-php_bin_path = str(subprocess.check_output('which php-cgi',
-                                           shell=True))
-
+p = subprocess.Popen('which php-cgi', stdout=subprocess.PIPE, shell=True)
+out = p.communicate()[0]
+if p.returncode:
+    raise Exception("php-cgi does not exist in the path")
+php_bin_path = out
+ 
 def git_readdir(dir, ext = None):
-    files = str(subprocess.check_output('git ls-tree --name-only HEAD:' + dir,
-                                       shell=True)).rstrip('\n').split('\n')
+    p = subprocess.Popen('git ls-tree --name-only HEAD:' + dir,
+                         stdout=subprocess.PIPE,
+                         stderr=subprocess.PIPE,
+                         shell=True)
+    (out, err) = p.communicate()
+    if p.returncode:
+        raise Exception(err)
+    files = out.rstrip('\n').split('\n')
     if ext is not None:
         files = [f for f in files if os.path.splitext(f)[1] == ext]
     return files
 
 def git_readfile(file):
-    return str(subprocess.check_output('git show HEAD:' + file,
-                                       shell=True))
+    p = subprocess.Popen('git show HEAD:' + file,
+                         stdout=subprocess.PIPE,
+                         stderr=subprocess.PIPE,
+                         shell=True)
+    (out, err) = p.communicate()
+    if p.returncode:
+        raise Exception(err)
+    return out
 
 def git_checkfile(file):
-    try:
-        subprocess.check_call('git show HEAD:' + file, stdout=subprocess.PIPE,
-                              stderr=subprocess.PIPE, shell=True)
-    except subprocess.CalledProcessError:
-        return False
-    return True
+    p = subprocess.Popen('git show HEAD:' + file,
+                         stdout=subprocess.PIPE,
+                         stderr=subprocess.PIPE,
+                         shell=True)
+    p.communicate()
+    return p.returncode == 0
 
 def make_php_vars(vars, do_eval = False):
     if do_eval:
@@ -48,9 +67,11 @@ if URLROOT is None:
 
 if HTMLROOT is None:
     raise Exception('\'HTMLROOT\' is not defined')
-if not os.path.isdir(HTMLROOT):
-    raise Exception('\'' + HTMLROOT + '\' does not exist or is not directory')
-HTMLROOT = os.path.abspath(HTMLROOT)
+
+if not do_preview:
+    if not os.path.isdir(HTMLROOT):
+        raise Exception('\'' + HTMLROOT + '\' does not exist or is not directory')
+    HTMLROOT = os.path.abspath(HTMLROOT)
 
 if WEBSITE_NAME is None:
     raise Exception('\'WEBSITE_NAME\' is not defined')
@@ -72,7 +93,7 @@ if do_preview:
         raise Exception('\'PREVIEW_URL\' is not defined')
     URLROOT = PREVIEW_URL
 
-new_vars = [ n for n in dir() if n not in old_vars ]
+new_vars = [n for n in dir() if n not in old_vars and re.match('[A-Z][A-Z_]*', n)]
 php_vars = make_php_vars(dict([(v, eval(v)) for v in new_vars]))
 
 # list all content types
@@ -92,8 +113,15 @@ def run_php(srcs):
     php_src = ''
     for (isFile, val) in srcs:
         if isFile:
-            php_src = php_src + str(subprocess.check_output('git show HEAD:' + val,
-                                                    shell=True))
+            p = subprocess.Popen('git show HEAD:' + val,
+                                 stdout=subprocess.PIPE,
+                                 stderr=subprocess.PIPE,
+                                 shell=True)
+            (out, err) = p.communicate()
+            if p.returncode:
+                raise Exception(err)
+
+            php_src = php_src + out
         else:
             php_src = php_src + val
 
